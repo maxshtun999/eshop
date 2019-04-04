@@ -1,10 +1,14 @@
 from django.db import models
+from django.urls import reverse
 
 
 # Модель категории
 class Category(models.Model):
     name = models.CharField(max_length=200, db_index=True)
     slug = models.SlugField(max_length=200, db_index=True, unique=True)
+
+    def get_absolute_url(self):
+        return reverse('Shope:ProductListByCategory', args=[self.slug])
 
     class Meta:
         ordering = ['name']
@@ -18,7 +22,8 @@ class Category(models.Model):
 # Модель продукта
 class Product(models.Model):
     category = models.ForeignKey(Category, related_name='products',
-                                 verbose_name="Категория")
+                                 verbose_name="Категория",
+                                 on_delete=models.PROTECT)
     name = models.CharField(max_length=200, db_index=True,
                             verbose_name="Название")
     slug = models.SlugField(max_length=200, db_index=True)
@@ -40,3 +45,6 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse('Shope:ProductDetail', args=[self.id, self.slug])
